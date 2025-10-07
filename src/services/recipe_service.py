@@ -8,7 +8,7 @@ def get_recipe_response(model: str, prompt: str) -> str:
         method="post",
         data={"model": model, "ingredients_as_text": prompt},
     )
-    if r.status_code != 201:
+    if r.status_code != 200:
         raise Exception(r.text)
 
     return r.json()["result"]
