@@ -12,7 +12,12 @@ SELECT_MODEL, ENTER_INGREDIENTS = range(2)
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
-    models = get_available_llms()
+    models = None
+    try:
+        models = get_available_llms()
+    except Exception:
+        logger.exception("Failed to get available llms.", update=update)
+
     if not models:
         logger.error("⚠️ Failed to fetch available models. Using default models.")
         models = ["ChatGPT", "Gemini"]
@@ -73,9 +78,14 @@ async def handle_ingredients(update: Update, context: ContextTypes.DEFAULT_TYPE)
         selected_model,
         ingredients,
     )
-    response = get_recipe_response(selected_model, ingredients)
 
-    await update.message.reply_text(response or "No recipe generated.")
+    response = None
+    try:
+        response = get_recipe_response(selected_model, ingredients)
+    except Exception:
+        logger.exception("Failed to get available llms.", update=update)
+
+    await update.message.reply_text(response or f"⚠️ Error contacting server")
 
     context.user_data.clear()
     return ConversationHandler.END
